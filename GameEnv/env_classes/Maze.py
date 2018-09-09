@@ -79,7 +79,7 @@ class Maze:
         if rndStartLocation == MazeDirection.NORTH:
             # the starting position needs to be on the top edge
             rnd_north_col_position = rnd.randint(0, self.grid.shape[1])
-            self.grid[0, rnd_north_col_position] ==
+            #  self.grid[0, rnd_north_col_position] ==
             pass
         elif rndStartLocation == MazeDirection.SOUTH:
             pass
