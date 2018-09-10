@@ -44,6 +44,7 @@ class Maze:
 
         # Populate the empty spaces list
         self.populate_empty_spaces()
+        self.create_entry_exit()
         pass
 
     @property
@@ -75,19 +76,36 @@ class Maze:
         First we determine the start position of the player. It must be on the edges (either north, south, west, east)
         We'll use a randomization to randomly pick which one it will be
         """
-        rndStartLocation = rnd.randint(0, 4)  # get a random number between 0 and 4 inclusive
-        if rndStartLocation == MazeDirection.NORTH:
+        rnd_start_location = rnd.randint(0, 4)  # get a random number between 0 and 4 inclusive
+        if rnd_start_location == MazeDirection.NORTH:
             # the starting position needs to be on the top edge
-            rnd_north_col_position = rnd.randint(0, self.grid.shape[1])
-            #  self.grid[0, rnd_north_col_position] ==
-            pass
-        elif rndStartLocation == MazeDirection.SOUTH:
-            pass
-        elif rndStartLocation == MazeDirection.WEST:
-            pass
-        elif rndStartLocation == MazeDirection.EAST:
-            pass
+            rnd_north_col_position = rnd.randint(0, self.grid.shape[1] - 1)
+            self.grid[0, rnd_north_col_position] = Marker.START
+            self._start_location = (0, rnd_north_col_position)
+            self.empty_Spaces.remove((0, rnd_north_col_position))
+
+        elif rnd_start_location == MazeDirection.SOUTH:
+            # Starting position is the outer bottom edge
+            rnd_south_col_position = rnd.randint(0, self.grid.shape[1] - 1)
+            self.grid[self.grid.shape[0] - 1, rnd_south_col_position] = Marker.START
+            self._start_location = (self.grid.shape[0] - 1, rnd_south_col_position)
+            self.empty_Spaces.remove((self.grid.shape[0] - 1, rnd_south_col_position))
+
+        elif rnd_start_location == MazeDirection.WEST:
+            # Start position is the left most edge
+            rnd_west_row_position = rnd.randint(0, self.grid.shape[0] - 1)
+            self.grid[rnd_west_row_position, 0] = Marker.START
+            self._start_location = (rnd_west_row_position, 0)
+            self.empty_Spaces.remove((rnd_west_row_position, 0))
+
+        elif rnd_start_location == MazeDirection.EAST:
+            # Start position is the right most edge
+            rnd_east_row_position = rnd.randint(0, self.grid.shape[0] - 1)
+            self.grid[rnd_east_row_position, self.grid.shape[1] - 1] = Marker.START
+            self._start_location = (rnd_east_row_position, self.grid.shape[1] - 1)
+            self.empty_Spaces.remove((rnd_east_row_position, self.grid.shape[1] - 1))
 
 
 a = Maze([5, 5])
-print(a.empty_Spaces)
+print(a.grid)
+
