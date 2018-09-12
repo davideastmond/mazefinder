@@ -1,7 +1,7 @@
 """
 This is the Maze Finder Environment for Q RL learning
 """
-from GameEnv.env_classes.Maze import Maze
+from GameEnv.env_classes.Maze import Maze, MazeDirection
 
 
 class MazeFinder:
@@ -23,7 +23,23 @@ class MazeFinder:
         return self.Game.make_move(step_action)
 
     def reset(self):
-        self.Game.reset(self.Dimensions)  # Reset the maze board to the default, initial dimensions
+        """
+        Reset the maze board to the default, initial dimensions
+        :return: void
+        """
+        self.Game.reset(self.Dimensions)
 
     def render(self):
-        self.Game.print()  # Essentially prints the game board
+        """
+        Raw output of maze board contents
+        :return:
+        """
+        self.Game.print()
+
+    @staticmethod
+    def get_action_space():
+        """
+        Static method. Returns a list of possible actions an agent could take
+        :return: list of 4 possible actions (up down, left right)
+        """
+        return [MazeDirection.NORTH, MazeDirection.SOUTH, MazeDirection.WEST, MazeDirection.EAST]  # return a list of valid actions

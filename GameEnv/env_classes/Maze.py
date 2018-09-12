@@ -431,39 +431,41 @@ class Maze:
 
 
 # Testing
-maze_dimension = (10, 10)
-env = Maze(maze_dimension)
+def testing():
+    maze_dimension = (10, 10)
+    env = Maze(maze_dimension)
 
-num_episodes = 20
-reward_storage = []
-move_storage = []
+    num_episodes = 2000
+    reward_storage = []
+    move_storage = []
 
-for i in range(num_episodes):
-    done = None
-    r_tally = 0
-    num_moves = 0
-    saved_states = []
-    obs = env.reset(maze_dimension)
-    while not done:
-        action = rnd.randint(0, 3)  # Represents our action space
-        obs, reward, done, info = env.make_move(action)
+    for i in range(num_episodes):
+        done = None
+        r_tally = 0
+        num_moves = 0
+        saved_states = []
+        obs = env.reset(maze_dimension)
+        while not done:
+            action = rnd.randint(0, 3)  # Represents our action space
+            obs, reward, done, info = env.make_move(action)
 
-        r_tally += reward
-        num_moves += 1
-        saved_states.append(obs)
-        # env.print()
-        if done:
-            # print("Episode completed. Total Reward is: ", r_tally, "|| number of moves: ", num_moves)
-            reward_storage.append(r_tally)
-            move_storage.append(num_moves)
+            r_tally += reward
+            num_moves += 1
+            saved_states.append(obs)
+            # env.print()
+            if done:
+                # print("Episode completed. Total Reward is: ", r_tally, "|| number of moves: ", num_moves)
+                reward_storage.append(r_tally)
+                move_storage.append(num_moves)
 
-r = [r for r in range(len(reward_storage))]
-plt.bar(r, reward_storage)
-plt.xlabel("Episode Number")
-plt.ylabel("Rewards")
-plt.title("Moves and Rewards")
-plt.show()
-# show highest reward
-print("Highest reward is: ", max(reward_storage))
-print("Least amount of moves: ", min(move_storage))
+    r = [r for r in range(len(reward_storage))]
+    plt.bar(r, reward_storage)
+    plt.xlabel("Episode Number")
+    plt.ylabel("Rewards")
+    plt.title("Moves and Rewards")
+    plt.show()
+    # show highest reward
+    print("Highest reward is: ", max(reward_storage))
+    print("Least amount of moves: ", min(move_storage))
 
+testing()
