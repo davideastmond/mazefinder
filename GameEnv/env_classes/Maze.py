@@ -1,5 +1,6 @@
 import random as rnd
 import numpy as np
+import matplotlib.pyplot as plt
 
 """
 This is a Q learning re-enforcement learning project. The object of this game is to navigate 
@@ -433,7 +434,7 @@ class Maze:
 maze_dimension = (10, 10)
 env = Maze(maze_dimension)
 
-num_episodes = 10000
+num_episodes = 20
 reward_storage = []
 move_storage = []
 
@@ -456,7 +457,12 @@ for i in range(num_episodes):
             reward_storage.append(r_tally)
             move_storage.append(num_moves)
 
-
+r = [r for r in range(len(reward_storage))]
+plt.bar(r, reward_storage)
+plt.xlabel("Episode Number")
+plt.ylabel("Rewards")
+plt.title("Moves and Rewards")
+plt.show()
 # show highest reward
 print("Highest reward is: ", max(reward_storage))
 print("Least amount of moves: ", min(move_storage))
