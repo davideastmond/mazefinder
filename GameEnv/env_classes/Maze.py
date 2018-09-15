@@ -1,7 +1,6 @@
 import random as rnd
 import numpy as np
 import matplotlib.pyplot as plt
-from os import system
 import time as tmr
 
 """
@@ -49,10 +48,10 @@ class RewardValue:
     """
     This keeps track of the rewards and associated values
     """
-    REACHED_GOAL = 5000
-    TRAP_HIT = -1000
-    OUTSIDE_MAZE = -500  # Agent attempted to make move that would take it out of bounds
-    NO_REWARD = -10  # Agent gets -10 for each move made
+    REACHED_GOAL = 50.0
+    TRAP_HIT = -1.0
+    OUTSIDE_MAZE = -0.5  # Agent attempted to make move that would take it out of bounds
+    NO_REWARD = -0.1  # Agent gets -10 for each move made
 
 
 class Maze:
@@ -435,7 +434,8 @@ class Maze:
         Prints the ndarray
         :return: void
         """
-        print(self.grid)
+        print(self.grid, end="\r")
+        tmr.sleep(0.5)
 
     def get_maze_state(self):
         """
@@ -470,7 +470,7 @@ def testing():
     maze_dimension = (10, 10)
     env = Maze(maze_dimension)
 
-    num_episodes = 1
+    num_episodes = 1000
     reward_storage = []
     move_storage = []
 
@@ -484,7 +484,8 @@ def testing():
         while not done:
             action = rnd.randint(0, 3)  # Represents our action space
             obs, reward, done, info = env.make_move(action)
-            print(obs)
+            # print(obs)
+            # tmr.sleep(.7)
             r_tally += reward
             num_moves += 1
             saved_states.append(obs)
