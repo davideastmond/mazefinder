@@ -470,15 +470,19 @@ def testing():
     maze_dimension = (10, 10)
     env = Maze(maze_dimension)
 
-    num_episodes = 1000
+    num_episodes = 15000
     reward_storage = []
     move_storage = []
+    max_num_moves = 100  # a game (episode) cannot take more moves than this, otherwise it's too long.
+                         # I calculated this number because it's slightly higher than the mean amount of moves
 
+    num_valid_games_played = 0
     for i in range(num_episodes):
         done = None
         r_tally = 0
         num_moves = 0
         saved_states = []
+
         obs = env.reset()
 
         while not done:
@@ -488,11 +492,15 @@ def testing():
             # tmr.sleep(.7)
             r_tally += reward
             num_moves += 1
+            if num_moves >= max_num_moves:
+                break  # Abort because the agent is taking too many moves
+
             saved_states.append(obs)
             if done:
-                print("Episode completed. Total Reward is: ", r_tally, "|| number of moves: ", num_moves)
+                # print("Episode completed. Total Reward is: ", r_tally, "|| number of moves: ", num_moves)
                 reward_storage.append(r_tally)
                 move_storage.append(num_moves)
+                num_valid_games_played += 1
 
     # r = [r for r in range(len(reward_storage))]
     # plt.bar(r, reward_storage)
@@ -501,7 +509,10 @@ def testing():
     # plt.title("Moves and Rewards")
     # plt.show()
     # show highest reward
+    print("Total number of valid games: ", num_valid_games_played)
     print("Highest reward is: ", max(reward_storage))
     print("Least amount of moves: ", min(move_storage))
+    print("Greatest amount of moves: ", max(move_storage))
+    print("The mean # of moves ", np.mean(move_storage))
 
 testing()
