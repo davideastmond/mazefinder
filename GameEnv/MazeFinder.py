@@ -27,7 +27,7 @@ class MazeFinder:
         Reset the maze board to the default, initial dimensions
         :return: void
         """
-        self.Game.reset(self.Dimensions)
+        self.Game.reset()
 
     def render(self):
         """

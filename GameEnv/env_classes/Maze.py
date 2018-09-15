@@ -1,6 +1,8 @@
 import random as rnd
 import numpy as np
 import matplotlib.pyplot as plt
+from os import system
+import time as tmr
 
 """
 This is a Q learning re-enforcement learning project. The object of this game is to navigate 
@@ -14,6 +16,19 @@ class MazeDirection:
     SOUTH = 2
     WEST = 1
     EAST = 3
+
+    @staticmethod
+    def get_direction(int_direction):
+        if int_direction == MazeDirection.NORTH:
+            return "north"
+        elif int_direction == MazeDirection.SOUTH:
+            return "south"
+        elif int_direction == MazeDirection.WEST:
+            return "west"
+        elif int_direction == MazeDirection.EAST:
+            return "east"
+        else:
+            raise ValueError("Invalid integer representation of a direction.")
 
 
 class Marker:
@@ -36,8 +51,8 @@ class RewardValue:
     """
     REACHED_GOAL = 5000
     TRAP_HIT = -1000
-    OUTSIDE_MAZE = -500
-    NO_REWARD = -10
+    OUTSIDE_MAZE = -500  # Agent attempted to make move that would take it out of bounds
+    NO_REWARD = -10  # Agent gets -10 for each move made
 
 
 class Maze:
@@ -54,10 +69,12 @@ class Maze:
         :param tuple_size: [rows, cols] the size of the maze board
         :param int_obstacle_count: number of obstacles (traps)
         """
-        # The Game board, initialized to a numpy zeros array
 
+        # Keep track of the dimensions of the maze
+        self.MazeDimension = tuple_size
+        self.ObstacleCount = int_obstacle_count
+        # The Game board, initialized to a numpy zeros array
         self.grid = np.zeros(tuple_size, dtype=int)  # This layer contains the start, end and all traps
-        self.agent_layer = np.zeros(tuple_size, dtype=int)  # This layer only keeps track of player location
 
         # Keep track of traps
         self._traps = []  # a list of coords [row, col] containing the trap
@@ -65,8 +82,6 @@ class Maze:
         # Private properties for the start location and end location
         self._start_location = ()  # Where the player starts. It is fixed for a given environment
         self._goal_location = ()  # Where the goal is. This is is fixed
-
-        self.agent_player = None  # Keeps track of the agent object
 
         self.create_entry_exit()
         self._agent_position = self._start_location  # Tuple (row, col) keeps track of where agent is located
@@ -102,7 +117,7 @@ class Maze:
         First we determine the start position of the player. It must be on the edges (either north, south, west, east)
         We'll use a randomization to randomly pick which one it will be
         """
-        rnd_start_location = rnd.randint(0, 3)  # get a random number between 0 and 4 inclusive
+        rnd_start_location = rnd.randint(0, 3)  # get a random number between 0 and 3 inclusive
         if rnd_start_location == MazeDirection.NORTH:
             # the starting position needs to be on the top edge
             rnd_north_col_position = rnd.randint(0 + Maze.p_offset, self.grid.shape[1] - 1 - Maze.p_offset)
@@ -191,6 +206,7 @@ class Maze:
                 # Agent has hit a trap, make sure to mark the trap as triggered, and send a negative reward
                 # Update the player
                 self._set_player(requested_move)
+                self.grid[requested_move] = Marker.TRIGGERED_TRAP
                 return self.get_maze_state(), RewardValue.TRAP_HIT, False, []
             elif self.validate_agent_move(requested_move) == 1:
                 # Agent has reached the goal. Return positive reward, done = true, set agent to correct position
@@ -208,6 +224,7 @@ class Maze:
             elif self.validate_agent_move(requested_move) == -2:
                 # Agent has hit a trap, set the player to the starting position, return a negative reward
                 self._set_player(requested_move)
+                self.grid[requested_move] = Marker.TRIGGERED_TRAP
                 return self.get_maze_state(), RewardValue.TRAP_HIT, False, []
             elif self.validate_agent_move(requested_move) == 1:
                 # Agent has reached the goal. Return positive reward, done = true, set agent to correct position
@@ -225,6 +242,7 @@ class Maze:
             elif self.validate_agent_move(requested_move) == -2:
                 # Agent has hit a trap,  return a negative reward
                 self._set_player(requested_move)
+                self.grid[requested_move] = Marker.TRIGGERED_TRAP
                 return self.get_maze_state(), RewardValue.TRAP_HIT, False, []
             elif self.validate_agent_move(requested_move) == 1:
                 # Agent has reached the goal. Return positive reward, done = true, set agent to correct position
@@ -240,8 +258,9 @@ class Maze:
                 #  out of bounds, make no changes, return a negative reward and an obs
                 return self.get_maze_state(), RewardValue.OUTSIDE_MAZE, False, []
             elif self.validate_agent_move(requested_move) == -2:
-                # Agent has hit a trap, set the player to the starting position, return a negative reward
+                # Agent has hit a trap, return a negative reward
                 self._set_player(requested_move)
+                self.grid[requested_move] = Marker.TRIGGERED_TRAP
                 return self.get_maze_state(), RewardValue.TRAP_HIT, False, []
             elif self.validate_agent_move(requested_move) == 1:
                 # Agent has reached the goal. Return positive reward, done = true, set agent to correct position
@@ -330,17 +349,21 @@ class Maze:
         :param placement: a Tuple(row, col)
         :return: void
         """
-        # TODO: make sure to update the maze to restore the previous [row, col] the player was on [DONE]
 
         # Get the player's current position before moving it
         player_old_position = self._agent_position
 
         # This method should only be executed after all validation
-        self.agent_layer[placement] = Marker.AGENT
+        self.grid[placement] = Marker.AGENT
         self._agent_position = placement
 
-        # Process the old position (check if it was a start, or a trap)
-        self.agent_layer[player_old_position] = Marker.EMPTY
+        # Process the old position (check if it was a start, or a trap and restore the correct representation in the array)
+        if player_old_position in self.traps:
+            self.grid[player_old_position] = Marker.TRAP
+        elif player_old_position == self._start_location:
+            self.grid[player_old_position] = Marker.START
+        else:
+            self.grid[player_old_position] = Marker.EMPTY
 
         # print("New Position: ", self._agent_position)
         # print("Old position: ", player_old_position)
@@ -372,6 +395,7 @@ class Maze:
         :param row_col: a tuple containing [row, col] of the safe zone you want to have
         :return: a list[] of tuples(row, col) of the no-go safe zone around row_col
         This usually is for trap placement to ensure that no traps are placed in any coord in the safe zone
+        Check out the github for an example of what a 'safe zone' looks like
         """
 
         #  Separate out the row, col to make it easier to read
@@ -408,26 +432,37 @@ class Maze:
 
     def print(self):
         """
-        Prints the concatenated ndarrays (
+        Prints the ndarray
         :return: void
         """
-        print(np.c_[self.agent_layer, self.grid])
+        print(self.grid)
 
     def get_maze_state(self):
         """
-        A short function for getting a concatenated representation of the agent_layer and the grid layer,
-        useful for returning as an observation
-        :return: numpy.ndarray (concatenated)
+        A short function for getting a the state of the game grid
+        :return: numpy.ndarray
         """
-        return np.c_[self.agent_layer, self.grid]
+        return self.grid
 
-    def reset(self, maze_d):
+    def reset(self):
         """
-        Reset all variables
+        Reset: place the agent back at the starting position. Clear board and re-generate maze
         :return: initial observation
         """
+        self.grid = np.zeros(self.MazeDimension, dtype=int)  # This layer contains the start, end and all traps
 
-        return self.__init__(maze_d)
+        # Keep track of traps
+        self._traps = []  # a list of coords [row, col] containing the trap
+
+        self.create_entry_exit()
+        self._agent_position = self._start_location  # Tuple (row, col) keeps track of where agent is located
+        # Set the agent position
+        self._set_player(self._start_location)
+
+        # Generate traps
+        self.generate_traps(self.ObstacleCount)
+
+        return self.get_maze_state()
 
 
 # Testing
@@ -435,7 +470,7 @@ def testing():
     maze_dimension = (10, 10)
     env = Maze(maze_dimension)
 
-    num_episodes = 2000
+    num_episodes = 1
     reward_storage = []
     move_storage = []
 
@@ -444,26 +479,26 @@ def testing():
         r_tally = 0
         num_moves = 0
         saved_states = []
-        obs = env.reset(maze_dimension)
+        obs = env.reset()
+
         while not done:
             action = rnd.randint(0, 3)  # Represents our action space
             obs, reward, done, info = env.make_move(action)
-
+            print(obs)
             r_tally += reward
             num_moves += 1
             saved_states.append(obs)
-            # env.print()
             if done:
-                # print("Episode completed. Total Reward is: ", r_tally, "|| number of moves: ", num_moves)
+                print("Episode completed. Total Reward is: ", r_tally, "|| number of moves: ", num_moves)
                 reward_storage.append(r_tally)
                 move_storage.append(num_moves)
 
-    r = [r for r in range(len(reward_storage))]
-    plt.bar(r, reward_storage)
-    plt.xlabel("Episode Number")
-    plt.ylabel("Rewards")
-    plt.title("Moves and Rewards")
-    plt.show()
+    # r = [r for r in range(len(reward_storage))]
+    # plt.bar(r, reward_storage)
+    # plt.xlabel("Episode Number")
+    # plt.ylabel("Rewards")
+    # plt.title("Moves and Rewards")
+    # plt.show()
     # show highest reward
     print("Highest reward is: ", max(reward_storage))
     print("Least amount of moves: ", min(move_storage))
