@@ -1,7 +1,7 @@
 """
 This is the Maze Finder Environment for Q RL learning
 """
-from GameEnv.env_classes.Maze import Maze, MazeDirection
+from .env_classes.Maze import Maze, MazeDirection
 
 
 class MazeFinder:
