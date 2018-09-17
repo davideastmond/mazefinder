@@ -48,15 +48,15 @@ class RewardValue:
     """
     This keeps track of the rewards and associated values
     """
-    REACHED_GOAL = 50.0
-    TRAP_HIT = -1.0
+    REACHED_GOAL = 50.0  # Agent reaches the goal marker
+    TRAP_HIT = -1.0  # Agent hits a trap
     OUTSIDE_MAZE = -0.5  # Agent attempted to make move that would take it out of bounds
     NO_REWARD = -0.1  # Agent gets -10 for each move made
 
 
 class Maze:
     """
-     The maze class is hte game board. It will auto-generate a starting position and an ending goal,
+     The maze class is the game board. It will auto-generate a starting position and an ending goal,
      both of which must be on the board edges. Users of this class need to specify the dimensions of the
      board.
     """
@@ -502,17 +502,5 @@ def testing():
                 move_storage.append(num_moves)
                 num_valid_games_played += 1
 
-    # r = [r for r in range(len(reward_storage))]
-    # plt.bar(r, reward_storage)
-    # plt.xlabel("Episode Number")
-    # plt.ylabel("Rewards")
-    # plt.title("Moves and Rewards")
-    # plt.show()
-    # show highest reward
-    print("Total number of valid games: ", num_valid_games_played)
-    print("Highest reward is: ", max(reward_storage))
-    print("Least amount of moves: ", min(move_storage))
-    print("Greatest amount of moves: ", max(move_storage))
-    print("The mean # of moves ", np.mean(move_storage))
 
-testing()
+
