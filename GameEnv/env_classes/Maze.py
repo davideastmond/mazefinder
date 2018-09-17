@@ -501,6 +501,3 @@ def testing():
                 reward_storage.append(r_tally)
                 move_storage.append(num_moves)
                 num_valid_games_played += 1
-
-
-
