@@ -58,7 +58,7 @@ class Agent:
 
         n_q_values = self.network.get_q_values(p_state=_state)[0]
 
-        n_action = self.epsilon_greedy.get_action(q_values=q_values, iteration=COUNT_STATES)
+        n_action = self.epsilon_greedy.get_action(q_values=n_q_values, iteration=COUNT_STATES)
 
         return n_q_values, n_action
 
@@ -603,7 +603,7 @@ class Trainer:
         t_max_steps = 0
         while not self.training_agent.replay_memory.is_full() and not t_done and t_max_steps < 100:
             local_q_values, local_action = self.training_agent.get_move(t_state)
-            nstate, nreward, ndone, _ = self.env.step(action)
+            nstate, nreward, ndone, _ = self.env.step(local_action)
             count_up()
             self.training_agent.replay_memory.add(state=nstate,
                                                   q_values=local_q_values,
@@ -611,10 +611,10 @@ class Trainer:
                                                   reward=nreward,
                                                   end_life=ndone)
 
-            t_total_reward += reward
+            t_total_reward += nreward
             t_max_steps += 1
 
-        return total_reward
+        return t_total_reward
 
     def train_agent(self, num_games=None):
 
