@@ -51,7 +51,7 @@ class RewardValue:
     REACHED_GOAL = 50.0  # Agent reaches the goal marker
     TRAP_HIT = -1.0  # Agent hits a trap
     OUTSIDE_MAZE = -0.5  # Agent attempted to make move that would take it out of bounds
-    NO_REWARD = -0.1  # Agent gets -10 for each move made
+    NO_REWARD = -0.05  # Agent gets -10 for each move made
 
 
 class Maze:
@@ -60,7 +60,7 @@ class Maze:
      both of which must be on the board edges. Users of this class need to specify the dimensions of the
      board.
     """
-    p_offset = 3  # this is the offset fort he edge borders
+    p_offset = 3  # this is the offset for the edge borders
     trap_threshold = 0.3  # This represents the max percentage of traps that can be generated on a given maze board
 
     def __init__(self, tuple_size, int_obstacle_count=0):
@@ -78,7 +78,7 @@ class Maze:
         # Keep track of traps
         self._traps = []  # a list of coords [row, col] containing the trap
 
-        # Private properties for the start location and end location
+        # Private fields for the start location and end location properties
         self._start_location = ()  # Where the player starts. It is fixed for a given environment
         self._goal_location = ()  # Where the goal is. This is is fixed
 

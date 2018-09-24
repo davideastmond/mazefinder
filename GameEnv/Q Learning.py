@@ -748,17 +748,17 @@ trainer.train_agent(num_games=13000)
 agent.training = False
 
 rewards = []
-
+max_steps = 100
 for x in range(100):
-    state = env.reset()
+    zstate = env.reset()
     total_reward = 0
     done = False
-    max_steps = 0
-    while not done and max_steps < 100:
-        q_values, action = agent.get_move(state)
+    step_count = 0
+    while not done and step_count < max_steps:
+        q_values, action = agent.get_move(zstate)
         state, reward, done, _ = env.step(action)
         total_reward += reward
-        max_steps += 1
+        step_count += 1
 
     rewards.append(total_reward)
 
@@ -799,6 +799,6 @@ plt.show()
 # from google.colab import files
 
 # for x in range(29):
-files.download('agent{}.h5'.format(AGENT_NUM - 1))
+# files.download('agent{}.h5'.format(AGENT_NUM - 1))
 
 
