@@ -51,7 +51,7 @@ class RewardValue:
     REACHED_GOAL = 50.0
     TRAP_HIT = -1.0
     OUTSIDE_MAZE = -0.5  # Agent attempted to make move that would take it out of bounds
-    NO_REWARD = -0.1  # Agent gets -10 for each move made
+    NO_REWARD = -0.05  # Agent gets -10 for each move made
 
 
 class Maze:
